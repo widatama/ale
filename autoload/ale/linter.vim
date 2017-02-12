@@ -145,6 +145,14 @@ function! ale#linter#PreProcess(linter) abort
         throw '`read_buffer` must be `0` or `1`'
     endif
 
+    " An option indicating that this linter should only be run when files
+    " are saved.
+    let l:obj.only_run_on_save = get(a:linter, 'only_run_on_save', 0)
+
+    if !s:IsBoolean(l:obj.only_run_on_save)
+        throw '`only_run_on_save` must be `0` or `1`'
+    endif
+
     return l:obj
 endfunction
 

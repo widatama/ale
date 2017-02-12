@@ -59,8 +59,8 @@ let g:ale_lint_on_text_changed = get(g:, 'ale_lint_on_text_changed', 1)
 " This flag can be set to 0 to disable linting when the buffer is entered.
 let g:ale_lint_on_enter = get(g:, 'ale_lint_on_enter', 1)
 
-" This flag can be set to 1 to enable linting when a buffer is written.
-let g:ale_lint_on_save = get(g:, 'ale_lint_on_save', 0)
+" This flag can be set to 0 to disable linting when a buffer is written.
+let g:ale_lint_on_save = get(g:, 'ale_lint_on_save', 1)
 
 " This flag may be set to 0 to disable ale. After ale is loaded, :ALEToggle
 " should be used instead.
@@ -122,21 +122,21 @@ function! s:ALEInitAuGroups() abort
     augroup ALERunOnTextChangedGroup
         autocmd!
         if g:ale_enabled && g:ale_lint_on_text_changed
-            autocmd TextChanged,TextChangedI * call ale#Queue(g:ale_lint_delay)
+            autocmd TextChanged,TextChangedI * call ale#Queue(g:ale_lint_delay, 'typing')
         endif
     augroup END
 
     augroup ALERunOnEnterGroup
         autocmd!
         if g:ale_enabled && g:ale_lint_on_enter
-            autocmd BufEnter,BufRead * call ale#Queue(300)
+            autocmd BufEnter,BufRead * call ale#Queue(300, 'enter')
         endif
     augroup END
 
     augroup ALERunOnSaveGroup
         autocmd!
         if g:ale_enabled && g:ale_lint_on_save
-            autocmd BufWrite * call ale#Queue(0)
+            autocmd BufWrite * call ale#Queue(0, 'save')
         endif
     augroup END
 
@@ -153,7 +153,7 @@ function! s:ALEToggle() abort
 
     if g:ale_enabled
         " Lint immediately
-        call ale#Queue(0)
+        call ale#Queue(0, 'toggle')
     else
         for l:buffer in keys(g:ale_buffer_info)
             " Stop jobs and delete stored buffer data
