@@ -1,10 +1,22 @@
 " Author: w0rp <devw0rp@gmail.com>
 " Description: This file add scsslint support for SCSS support
 
+let g:ale_scss_scsslint_executable =
+\   get(g:, 'ale_scss_scsslint_executable', 'scss-lint')
+
+let g:ale_scss_scsslint_options =
+\   get(g:, 'ale_scss_scsslint_options', '')
+
+function! ale_linters#scss#scsslint#GetCommand(buffer) abort
+    return g:ale_scss_scsslint_executable
+    \   . ' ' . g:ale_scss_scsslint_options
+    \   . ' %s'
+endfunction
+
 function! ale_linters#scss#scsslint#Handle(buffer, lines) abort
     " Matches patterns like the following:
     "
-    " test.scss:2:1 [W] Indentation: Line should be indented 2 spaces, but was indented 4 spaces
+    " test.scss:2 [W] Indentation: Line should be indented 2 spaces, but was indented 4 spaces
     let l:pattern = '^.*:\(\d\+\):\(\d*\) \[\([^\]]\+\)\] \(.\+\)$'
     let l:output = []
 
@@ -36,6 +48,6 @@ endfunction
 call ale#linter#Define('scss', {
 \   'name': 'scsslint',
 \   'executable': 'scss-lint',
-\   'command': 'scss-lint --stdin-file-path=%s',
+\   'command_callback': 'ale_linters#scss#scsslint#GetCommand',
 \   'callback': 'ale_linters#scss#scsslint#Handle',
 \})
