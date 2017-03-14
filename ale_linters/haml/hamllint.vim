@@ -1,6 +1,18 @@
 " Author: Patrick Lewis - https://github.com/patricklewis
 " Description: haml-lint for Haml files
 
+let g:ale_haml_hamllint_executable =
+\   get(g:, 'ale_haml_hamllint_executable', 'haml-lint')
+
+let g:ale_haml_hamllint_options =
+\   get(g:, 'ale_haml_hamllint_options', '')
+
+function! ale_linters#haml#hamllint#GetCommand(buffer) abort
+    return g:ale_haml_hamllint_executable
+    \   . ' ' . g:ale_haml_hamllint_options
+    \   . ' %s'
+endfunction
+
 function! ale_linters#haml#hamllint#Handle(buffer, lines) abort
     " Matches patterns like the following:
     " <path>:51 [W] RuboCop: Use the new Ruby 1.9 hash syntax.
@@ -28,6 +40,6 @@ endfunction
 call ale#linter#Define('haml', {
 \   'name': 'hamllint',
 \   'executable': 'haml-lint',
-\   'command': 'haml-lint %t',
-\   'callback': 'ale_linters#haml#hamllint#Handle'
+\   'command_callback': 'ale_linters#haml#hamllint#GetCommand',
+\   'callback': 'ale_linters#haml#hamllint#Handle',
 \})
