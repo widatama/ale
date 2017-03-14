@@ -1,6 +1,9 @@
 " Author: Prashanth Chandra https://github.com/prashcr
 " Description: coffeelint linter for coffeescript files
 
+let g:ale_coffee_coffeelint_options =
+\   get(g:, 'ale_coffee_coffeelint_options', '')
+
 function! ale_linters#coffee#coffeelint#GetExecutable(buffer) abort
     return ale#util#ResolveLocalPath(
     \   a:buffer,
@@ -11,6 +14,7 @@ endfunction
 
 function! ale_linters#coffee#coffeelint#GetCommand(buffer) abort
     return ale_linters#coffee#coffeelint#GetExecutable(a:buffer)
+    \   . ' ' . g:ale_coffee_coffeelint_options
     \   . ' --stdin --reporter csv'
 endfunction
 
