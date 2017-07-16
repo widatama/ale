@@ -1,12 +1,6 @@
 " Author: Paulo Alem    <paulo.alem@gmail.com>
 " Description: Rudimentary SML checking with smlnj compiler
 
-if exists('g:loaded_ale_sml_smlnj_checker')
-    finish
-endif
-
-let g:loaded_ale_sml_smlnj_checker = 1
-
 function! ale_linters#sml#smlnj#Handle(buffer, lines) abort
     " Try to match basic sml errors
 
@@ -45,7 +39,7 @@ function! ale_linters#sml#smlnj#Handle(buffer, lines) abort
     return l:out
 endfunction
 
-call g:ale#linter#Define('sml', {
+call ale#linter#Define('sml', {
 \   'name': 'smlnj',
 \   'executable': 'sml',
 \   'command': 'sml',
