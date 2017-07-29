@@ -31,8 +31,11 @@ CONTENTS                                                         *ale-contents*
       stylelint...........................|ale-css-stylelint|
     cmake.................................|ale-cmake-options|
       cmakelint...........................|ale-cmake-cmakelint|
+    dart..................................|ale-dart-options|
+      dartanalyzer........................|ale-dart-dartanalyzer|
     erlang................................|ale-erlang-options|
       erlc................................|ale-erlang-erlc|
+      syntaxerl...........................|ale-erlang-syntaxerl|
     fortran...............................|ale-fortran-options|
       gcc.................................|ale-fortran-gcc|
     fusionscript..........................|ale-fuse-options|
@@ -74,6 +77,7 @@ CONTENTS                                                         *ale-contents*
     php...................................|ale-php-options|
       phpcs...............................|ale-php-phpcs|
       phpmd...............................|ale-php-phpmd|
+      phpstan.............................|ale-php-phpstan|
     pug...................................|ale-pug-options|
       puglint.............................|ale-pug-puglint|
     python................................|ale-python-options|
@@ -119,6 +123,7 @@ CONTENTS                                                         *ale-contents*
     xml...................................|ale-xml-options|
       xmllint.............................|ale-xml-xmllint|
     yaml..................................|ale-yaml-options|
+      swaglint............................|ale-yaml-swaglint|
       yamllint............................|ale-yaml-yamllint|
   6. Commands/Keybinds....................|ale-commands|
   7. API..................................|ale-api|
@@ -169,6 +174,7 @@ The following languages and tools are supported.
 * CSS: 'csslint', 'stylelint'
 * Cython (pyrex filetype): 'cython'
 * D: 'dmd'
+* Dart: 'dartanalyzer'
 * Dockerfile: 'hadolint'
 * Elixir: 'credo', 'dogma'
 * Elm: 'elm-make'
@@ -195,7 +201,7 @@ The following languages and tools are supported.
 * Objective-C++: 'clang'
 * OCaml: 'merlin' (see |ale-linter-integration-ocaml-merlin|)
 * Perl: 'perl' (-c flag), 'perlcritic'
-* PHP: 'hack', 'php' (-l flag), 'phpcs', 'phpmd'
+* PHP: 'hack', 'php' (-l flag), 'phpcs', 'phpmd', 'phpstan'
 * Pod: 'proselint'
 * Pug: 'pug-lint'
 * Puppet: 'puppet', 'puppet-lint'
@@ -222,7 +228,7 @@ The following languages and tools are supported.
 * Vim help: 'proselint'
 * XHTML: 'proselint'
 * XML: 'xmllint'
-* YAML: 'yamllint'
+* YAML: 'swaglint', 'yamllint'
 
 ===============================================================================
 3. Global Options                                                 *ale-options*
