@@ -1,11 +1,7 @@
 " Author: Eric Stern <eric@ericstern.com>
 " Description: PHP Language server integration for ALE
 
-" This linter is disabled for now.
-finish
-
 call ale#Set('php_langserver_executable', 'php-language-server.php')
-call ale#Set('php_langserver_config_path', '')
 call ale#Set('php_langserver_use_global', 0)
 
 function! ale_linters#php#langserver#GetExecutable(buffer) abort
@@ -15,7 +11,7 @@ function! ale_linters#php#langserver#GetExecutable(buffer) abort
 endfunction
 
 function! ale_linters#php#langserver#GetCommand(buffer) abort
-    return 'php ' . ale_linters#php#langserver#GetExecutable(a:buffer)
+    return 'php ' . ale#Escape(ale_linters#php#langserver#GetExecutable(a:buffer))
 endfunction
 
 function! ale_linters#php#langserver#GetLanguage(buffer) abort
@@ -25,7 +21,7 @@ endfunction
 function! ale_linters#php#langserver#GetProjectRoot(buffer) abort
     let l:git_path = ale#path#FindNearestDirectory(a:buffer, '.git')
 
-    return !empty(l:git_path) ? fnamemodify(l:git_path, ':h') : ''
+    return !empty(l:git_path) ? fnamemodify(l:git_path, ':h:h') : ''
 endfunction
 
 call ale#linter#Define('php', {

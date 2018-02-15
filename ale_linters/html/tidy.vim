@@ -25,8 +25,16 @@ function! ale_linters#html#tidy#GetCommand(buffer) abort
     \   'utf-8':        '-utf8',
     \ }, &fileencoding, '-utf8')
 
+    " On macOS, old tidy (released on 31 Oct 2006) is installed. It does not
+    " consider HTML5 so we should avoid it.
+    let l:executable = ale#Var(a:buffer, 'html_tidy_executable')
+    if has('mac') && l:executable is# 'tidy' && exists('*exepath')
+    \  && exepath(l:executable) is# '/usr/bin/tidy'
+        return ''
+    endif
+
     return printf('%s %s %s -',
-    \   ale#Var(a:buffer, 'html_tidy_executable'),
+    \   l:executable,
     \   ale#Var(a:buffer, 'html_tidy_options'),
     \   l:file_encoding
     \)
@@ -46,7 +54,7 @@ function! ale_linters#html#tidy#Handle(buffer, lines) abort
     for l:match in ale#util#GetMatches(a:lines, l:pattern)
         let l:line = l:match[1] + 0
         let l:col = l:match[2] + 0
-        let l:type = l:match[3] ==# 'Error' ? 'E' : 'W'
+        let l:type = l:match[3] is# 'Error' ? 'E' : 'W'
         let l:text = l:match[4]
 
         call add(l:output, {

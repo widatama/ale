@@ -34,6 +34,7 @@ function! ale_linters#ruby#rubocop#Handle(buffer, lines) abort
         \   'lnum': l:error['location']['line'] + 0,
         \   'col': l:start_col,
         \   'end_col': l:start_col + l:error['location']['length'] - 1,
+        \   'code': l:error['cop_name'],
         \   'text': l:error['message'],
         \   'type': ale_linters#ruby#rubocop#GetType(l:error['severity']),
         \})
@@ -43,9 +44,9 @@ function! ale_linters#ruby#rubocop#Handle(buffer, lines) abort
 endfunction
 
 function! ale_linters#ruby#rubocop#GetType(severity) abort
-    if a:severity ==? 'convention'
-    \|| a:severity ==? 'warning'
-    \|| a:severity ==? 'refactor'
+    if a:severity is? 'convention'
+    \|| a:severity is? 'warning'
+    \|| a:severity is? 'refactor'
         return 'W'
     endif
 

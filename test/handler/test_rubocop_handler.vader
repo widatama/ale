@@ -13,6 +13,7 @@ Execute(The rubocop handler should parse lines correctly):
   \     'col': 29,
   \     'end_col': 35,
   \     'text': 'Prefer single-quoted strings...',
+  \     'code': 'Style/SomeCop',
   \     'type': 'W',
   \   },
   \   {
@@ -20,6 +21,7 @@ Execute(The rubocop handler should parse lines correctly):
   \     'col': 2,
   \     'end_col': 2,
   \     'text': 'Some error',
+  \     'code': 'Style/SomeOtherCop',
   \     'type': 'E',
   \   },
   \   {
@@ -27,6 +29,7 @@ Execute(The rubocop handler should parse lines correctly):
   \     'col': 5,
   \     'end_col': 12,
   \     'text': 'Regular warning',
+  \     'code': 'Style/WarningCop',
   \     'type': 'W',
   \   },
   \   {
@@ -34,6 +37,7 @@ Execute(The rubocop handler should parse lines correctly):
   \     'col': 1,
   \     'end_col': 1,
   \     'text': 'Another error',
+  \     'code': 'Style/SpaceBeforeBlockBraces',
   \     'type': 'E',
   \   },
   \ ],

@@ -1,3 +1,4 @@
+call ale#Set('wrap_command_as_one_argument', 0)
 " Author: w0rp <devw0rp@gmail.com>
 " Description: Linter registration and lazy-loading
 "   Retrieves linters as requested by the engine, loading them if needed.
@@ -21,10 +22,14 @@ let s:default_ale_linter_aliases = {
 "
 " Only cargo is enabled for Rust by default.
 " rpmlint is disabled by default because it can result in code execution.
+"
+" NOTE: Update the g:ale_linters documentation when modifying this.
 let s:default_ale_linters = {
 \   'csh': ['shell'],
 \   'go': ['gofmt', 'golint', 'go vet'],
 \   'help': [],
+\   'perl': ['perlcritic'],
+\   'python': ['flake8', 'mypy', 'pylint'],
 \   'rust': ['cargo'],
 \   'spec': [],
 \   'text': [],
@@ -59,9 +64,9 @@ function! ale#linter#PreProcess(linter) abort
         throw '`name` must be defined to name the linter'
     endif
 
-    let l:needs_address = l:obj.lsp ==# 'socket'
-    let l:needs_executable = l:obj.lsp !=# 'socket'
-    let l:needs_command = l:obj.lsp !=# 'socket'
+    let l:needs_address = l:obj.lsp is# 'socket'
+    let l:needs_executable = l:obj.lsp isnot# 'socket'
+    let l:needs_command = l:obj.lsp isnot# 'socket'
     let l:needs_lsp_details = !empty(l:obj.lsp)
 
     if empty(l:obj.lsp)
@@ -260,12 +265,19 @@ function! ale#linter#GetAll(filetypes) abort
 endfunction
 
 function! s:GetAliasedFiletype(original_filetype) abort
+    let l:buffer_aliases = get(b:, 'ale_linter_aliases', {})
+
+    " b:ale_linter_aliases can be set to a List.
+    if type(l:buffer_aliases) is type([])
+        return l:buffer_aliases
+    endif
+
     " Check for aliased filetypes first in a buffer variable,
     " then the global variable,
     " then in the default mapping,
     " otherwise use the original filetype.
     for l:dict in [
-    \   get(b:, 'ale_linter_aliases', {}),
+    \   l:buffer_aliases,
     \   g:ale_linter_aliases,
     \   s:default_ale_linter_aliases,
     \]
@@ -288,15 +300,38 @@ function! ale#linter#ResolveFiletype(original_filetype) abort
 endfunction
 
 function! s:GetLinterNames(original_filetype) abort
-    for l:dict in [
-    \   get(b:, 'ale_linters', {}),
-    \   g:ale_linters,
-    \   s:default_ale_linters,
-    \]
-        if has_key(l:dict, a:original_filetype)
-            return l:dict[a:original_filetype]
-        endif
-    endfor
+    let l:buffer_ale_linters = get(b:, 'ale_linters', {})
+
+    " b:ale_linters can be set to 'all'
+    if l:buffer_ale_linters is# 'all'
+        return 'all'
+    endif
+
+    " b:ale_linters can be set to a List.
+    if type(l:buffer_ale_linters) is type([])
+        return l:buffer_ale_linters
+    endif
+
+    " Try to get a buffer-local setting for the filetype
+    if has_key(l:buffer_ale_linters, a:original_filetype)
+        return l:buffer_ale_linters[a:original_filetype]
+    endif
+
+    " Try to get a global setting for the filetype
+    if has_key(g:ale_linters, a:original_filetype)
+        return g:ale_linters[a:original_filetype]
+    endif
+
+    " If the user has configured ALE to only enable linters explicitly, then
+    " don't enable any linters by default.
+    if g:ale_linters_explicit
+        return []
+    endif
+
+    " Try to get a default setting for the filetype
+    if has_key(s:default_ale_linters, a:original_filetype)
+        return s:default_ale_linters[a:original_filetype]
+    endif
 
     return 'all'
 endfunction
@@ -304,14 +339,14 @@ endfunction
 function! ale#linter#Get(original_filetypes) abort
     let l:possibly_duplicated_linters = []
 
-    " Handle dot-seperated filetypes.
+    " Handle dot-separated filetypes.
     for l:original_filetype in split(a:original_filetypes, '\.')
         let l:filetype = ale#linter#ResolveFiletype(l:original_filetype)
         let l:linter_names = s:GetLinterNames(l:original_filetype)
         let l:all_linters = ale#linter#GetAll(l:filetype)
         let l:filetype_linters = []
 
-        if type(l:linter_names) == type('') && l:linter_names ==# 'all'
+        if type(l:linter_names) == type('') && l:linter_names is# 'all'
             let l:filetype_linters = l:all_linters
         elseif type(l:linter_names) == type([])
             " Select only the linters we or the user has specified.
@@ -377,7 +412,13 @@ function! ale#linter#StartLSP(buffer, linter, callback) abort
     let l:address = ''
     let l:root = ale#util#GetFunction(a:linter.project_root_callback)(a:buffer)
 
-    if a:linter.lsp ==# 'socket'
+    if empty(l:root) && a:linter.lsp isnot# 'tsserver'
+        " If there's no project root, then we can't check files with LSP,
+        " unless we are using tsserver, which doesn't use project roots.
+        return {}
+    endif
+
+    if a:linter.lsp is# 'socket'
         let l:address = ale#linter#GetAddress(a:buffer, a:linter)
         let l:conn_id = ale#lsp#ConnectToAddress(
         \   l:address,
@@ -392,6 +433,7 @@ function! ale#linter#StartLSP(buffer, linter, callback) abort
         endif
 
         let l:command = ale#job#PrepareCommand(
+        \   a:buffer,
         \   ale#linter#GetCommand(a:buffer, a:linter),
         \)
         let l:conn_id = ale#lsp#StartProgram(
@@ -419,7 +461,7 @@ function! ale#linter#StartLSP(buffer, linter, callback) abort
     endif
 
     " The change message needs to be sent for tsserver before doing anything.
-    if a:linter.lsp ==# 'tsserver'
+    if a:linter.lsp is# 'tsserver'
         call ale#lsp#Send(l:conn_id, ale#lsp#tsserver_message#Change(a:buffer))
     endif
 

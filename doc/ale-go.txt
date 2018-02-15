@@ -21,7 +21,33 @@ while ensuring it doesn't run any linters known to be slow or resource
 intensive.
 
 ===============================================================================
+gobuild                                                        *ale-go-gobuild*
+
+g:ale_go_gobuild_options                             *g:ale_go_gobuild_options*
+                                                     *b:ale_go_gobuild_options*
+  Type: |String|
+  Default: `''`
+
+  This variable can be set to pass additional options to the gobuild linter.
+  They are injected directly after "go test".
+
+
+===============================================================================
+gofmt                                                            *ale-go-gofmt*
+
+g:ale_go_gofmt_options                                 *g:ale_go_gofmt_options*
+                                                       *b:ale_go_gofmt_options*
+  Type: |String|
+  Default: `''`
+
+  This variable can be set to pass additional options to the gofmt fixer.
+
+===============================================================================
 gometalinter                                              *ale-go-gometalinter*
+
+`gometalinter` is a `lint_file` linter, which only lints files that are
+written to disk. This differs from the default behavior of linting the buffer.
+See: |ale-lint-file|
 
 g:ale_go_gometalinter_executable             *g:ale_go_gometalinter_executable*
                                              *b:ale_go_gometalinter_executable*
